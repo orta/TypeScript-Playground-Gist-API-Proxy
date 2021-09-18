@@ -47,7 +47,7 @@ export const get = async function (api: Octokit, context: Context, req: HttpRequ
   if (gist.status !== 200) return res(gist.status, { error: true, display: `Could not find gist with ID ${gistID}` });
 
   const files = Object.keys(gist.data.files);
-  if (files.length === 0) return res(gist.status, { error: true, display: `There were no files in gist: ${gistID}` });
+  if (files.length === 0) return res(404, { error: true, display: `There were no files in gist: ${gistID}` });
 
   if (files.length === 1) {
     // We're a single file example
@@ -72,6 +72,28 @@ export const canShowAsCode = (filename: string) => {
   const filetype = filename.split(".").pop();
   const known = ["ts", "js", "jsx", "tsx", "mjs", "cjs"];
   return known.indexOf(filetype) !== -1;
+};
+
+export const contentToCodePlusCompilerSettings = (contents: string) => {
+  let compiler = {};
+  if (contents.startsWith("//// {")) {
+    // convert windows newlines to linux new lines
+    const preJSON = contents.replace(/\r\n/g, "\n").split("//// {")[1].split("}\n")[0];
+    contents = contents.split("\n").slice(1).join("\n");
+
+    const code = "({" + preJSON + "})";
+
+    try {
+      const obj = eval(code);
+      compiler = obj.compiler;
+    } catch (err) {
+      return null;
+    }
+  }
+  return {
+    code: contents,
+    compilerOptions: compiler,
+  };
 };
 
 export default httpTrigger;

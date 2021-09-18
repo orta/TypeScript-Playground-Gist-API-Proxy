@@ -1,7 +1,4 @@
 import { Octokit } from "@octokit/rest";
-import { readFileSync } from "fs";
-import { join } from "path";
-import { WebhookPayloadPullRequest, WebhookPayloadIssues, WebhookPayloadIssueComment } from "@octokit/webhooks";
 
 /**
  * Creates a version of the GitHub API client where API calls
@@ -38,8 +35,10 @@ type JestMockToPromise<Type> = {
   [Property in keyof Type]: { [SubProperty in keyof Type[Property]]: Promise<any> };
 };
 
+export type MockAPI = ReturnType<typeof createMockGitHubClient>["mockAPI"];
+
 // Hardcoding mapped types like this makes it easy to see the results in the hover
-type PromisifiedInferredJestObj = JestMockToPromise<ReturnType<typeof createMockGitHubClient>["mockAPI"]>;
+export type PromisifiedInferredJestObj = JestMockToPromise<MockAPI>;
 
 /**
  * A Fake GitHub client which lets you work with fake responses while working in development
