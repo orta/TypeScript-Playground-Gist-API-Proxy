@@ -21,6 +21,11 @@ describe(get, () => {
     "error": true,
   },
   "code": 401,
+  "headers": {
+    "Access-Control-Allow-Methods": "GET",
+    "Access-Control-Allow-Origin": "*",
+    "Content-Type": "text/json",
+  },
 }
 `);
   });
@@ -37,6 +42,11 @@ describe(get, () => {
     "error": true,
   },
   "code": 404,
+  "headers": {
+    "Access-Control-Allow-Methods": "GET",
+    "Access-Control-Allow-Origin": "*",
+    "Content-Type": "text/json",
+  },
 }
 `);
   });
@@ -53,6 +63,11 @@ describe(get, () => {
     "error": true,
   },
   "code": 404,
+  "headers": {
+    "Access-Control-Allow-Methods": "GET",
+    "Access-Control-Allow-Origin": "*",
+    "Content-Type": "text/json",
+  },
 }
 `);
   });
@@ -75,6 +90,11 @@ describe(get, () => {
     "error": true,
   },
   "code": 404,
+  "headers": {
+    "Access-Control-Allow-Methods": "GET",
+    "Access-Control-Allow-Origin": "*",
+    "Content-Type": "text/json",
+  },
 }
 `);
   });
@@ -98,6 +118,11 @@ describe(get, () => {
     "type": "code",
   },
   "code": 200,
+  "headers": {
+    "Access-Control-Allow-Methods": "GET",
+    "Access-Control-Allow-Origin": "*",
+    "Content-Type": "text/json",
+  },
 }
 `);
   });
@@ -122,6 +147,11 @@ describe("playground stories", () => {
     "error": true,
   },
   "code": 404,
+  "headers": {
+    "Access-Control-Allow-Methods": "GET",
+    "Access-Control-Allow-Origin": "*",
+    "Content-Type": "text/json",
+  },
 }
 `);
   });
@@ -132,23 +162,29 @@ describe(contentToCodePlusCompilerSettings, () => {
     expect(contentToCodePlusCompilerSettings("ts", "const a = 123")).toMatchInlineSnapshot(`
 {
   "code": "const a = 123",
-  "compilerOptions": "",
+  "compilerOptions": {},
 }
 `);
   });
 
   it("re-uses the format from the typescript website", () => {
-    expect(contentToCodePlusCompilerSettings("ts", "//// { compiler: { strictFunctionTypes: false } }\nconst a = 123"))
-      .toMatchInlineSnapshot(`
+    expect(contentToCodePlusCompilerSettings("ts", "//// { compiler: { strictFunctionTypes: false } }\nconst a = 123")).
+toMatchInlineSnapshot(`
 {
   "code": "const a = 123",
-  "compilerOptions": "strictFunctionTypes=false",
+  "compilerOptions": {
+    "strictFunctionTypes": false,
+  },
 }
 `);
   });
 
   it("adds the JS settings to the params", () => {
-    expect(contentToCodePlusCompilerSettings("js", "const a = 123").compilerOptions).toMatchInlineSnapshot(`"filetype=js"`);
+    expect(contentToCodePlusCompilerSettings("js", "const a = 123").compilerOptions).toMatchInlineSnapshot(`
+{
+  "filetype": "js",
+}
+`);
   });
 });
 
@@ -189,7 +225,7 @@ describe(filesToStoryPages, () => {
 [
   {
     "code": "// code",
-    "params": "",
+    "params": {},
     "title": "abc.ts",
     "type": "code",
   },
@@ -224,7 +260,7 @@ describe(filesToStoryPages, () => {
 [
   {
     "code": "// code",
-    "params": "",
+    "params": {},
     "title": "abc.ts",
     "type": "code",
   },
@@ -238,7 +274,7 @@ describe(filesToStoryPages, () => {
   },
   {
     "code": "// code",
-    "params": "",
+    "params": {},
     "title": "abc2.ts",
     "type": "code",
   },

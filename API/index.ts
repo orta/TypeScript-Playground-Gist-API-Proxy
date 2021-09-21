@@ -5,7 +5,7 @@ import type { Endpoints } from "@octokit/types/dist-types/generated/endpoints";
 
 export type GistFiles = Endpoints["GET /gists/{gist_id}"]["response"]["data"]["files"];
 
-const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+export const run: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
   const api = createGitHubClient();
   if (req.method === "GET") {
     await get(api, context, req);
@@ -16,7 +16,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
 type StoryContent =
   | { type: "html"; html: string; title: string }
-  | { type: "code"; code: string; params: string; title: string }
+  | { type: "code"; code: string; params: any; title: string }
   | { type: "hr" };
 
 type Success =
@@ -33,9 +33,19 @@ type Success =
 
 type APIResponse = Success | { error: true; display: string };
 
+// Allow all others to access this JSON, we can
+// tighten this down to just the TS URLs if the route is abused, but it is
+// just proxying gist data, so it's not too important.
+const headers = {
+  "Content-Type": "text/json",
+  "Access-Control-Allow-Methods": "GET",
+  "Access-Control-Allow-Origin": "*",
+};
+
 const createResponse = (context: Context) => (code: number, response: APIResponse) => {
   context.res = {
     code,
+    headers,
     body: response,
   };
 };
@@ -105,7 +115,7 @@ export const contentToCodePlusCompilerSettings = (extension: string, contents: s
 
   return {
     code: contents,
-    compilerOptions: new URLSearchParams(compiler).toString(),
+    compilerOptions: compiler,
   };
 };
 
@@ -121,6 +131,7 @@ const mdToHTML =
 
 type MDToHTML = (md: string) => Promise<string | null>;
 
+// Convert the main 'gist' files object to something which the client can understand
 export const filesToStoryPages = async (
   files: GistFiles,
   mdToHTML: MDToHTML
@@ -163,5 +174,3 @@ export const filesToStoryPages = async (
 
   return items;
 };
-
-export default httpTrigger;
